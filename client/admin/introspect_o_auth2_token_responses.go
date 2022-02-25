@@ -13,6 +13,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/ory/hydra-client-go/models"
+	"github.com/sirupsen/logrus"
 )
 
 // IntrospectOAuth2TokenReader is a Reader for the IntrospectOAuth2Token structure.
@@ -99,12 +100,13 @@ func (o *IntrospectOAuth2TokenUnauthorized) GetPayload() *models.JSONError {
 }
 
 func (o *IntrospectOAuth2TokenUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
+	log := logrus.New()
 	o.Payload = new(models.JSONError)
 
 	// response payload
-	fmt.Println("********************************\n", o.Payload)
-	fmt.Println("********************************\n", response.Code(), response.Body())
+	log.Debug(fmt.Println("********************************\n", o.Payload))
+	log.Debug(fmt.Println("********************************\n", response.Code(), response.Body()))
+
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
