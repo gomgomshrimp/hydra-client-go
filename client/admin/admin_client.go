@@ -7,14 +7,15 @@ package admin
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new admin API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
-	return &Client{transport: transport, formats: formats}
+func New(transport runtime.ClientTransport, formats strfmt.Registry, logger *logrus.Logger) ClientService {
+	return &Client{transport: transport, formats: formats, logger: *logger}
 }
 
 /*
@@ -23,6 +24,7 @@ Client for admin API
 type Client struct {
 	transport runtime.ClientTransport
 	formats   strfmt.Registry
+	logger    logrus.Logger
 }
 
 // ClientOption is the option for Client methods
@@ -859,7 +861,7 @@ func (a *Client) IntrospectOAuth2Token(params *IntrospectOAuth2TokenParams, opts
 		ConsumesMediaTypes: []string{"application/x-www-form-urlencoded"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &IntrospectOAuth2TokenReader{formats: a.formats},
+		Reader:             &IntrospectOAuth2TokenReader{formats: a.formats, logger: &a.logger},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -868,6 +870,9 @@ func (a *Client) IntrospectOAuth2Token(params *IntrospectOAuth2TokenParams, opts
 	}
 
 	result, err := a.transport.Submit(op)
+	a.logger.Debug("**************************************IntrospectOAuth2Token Logging***************************************************\n")
+	a.logger.Debug(result)
+	a.logger.Debug(err)
 	if err != nil {
 		return nil, err
 	}

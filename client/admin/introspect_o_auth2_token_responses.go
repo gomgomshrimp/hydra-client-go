@@ -19,6 +19,7 @@ import (
 // IntrospectOAuth2TokenReader is a Reader for the IntrospectOAuth2Token structure.
 type IntrospectOAuth2TokenReader struct {
 	formats strfmt.Registry
+	logger  *logrus.Logger
 }
 
 // ReadResponse reads a server response into the received o.
@@ -31,7 +32,7 @@ func (o *IntrospectOAuth2TokenReader) ReadResponse(response runtime.ClientRespon
 		}
 		return result, nil
 	case 401:
-		result := NewIntrospectOAuth2TokenUnauthorized()
+		result := NewIntrospectOAuth2TokenUnauthorized(o.logger)
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -58,6 +59,7 @@ oAuth2TokenIntrospection
 */
 type IntrospectOAuth2TokenOK struct {
 	Payload *models.OAuth2TokenIntrospection
+	Logger  *logrus.Logger
 }
 
 func (o *IntrospectOAuth2TokenOK) Error() string {
@@ -72,6 +74,8 @@ func (o *IntrospectOAuth2TokenOK) readResponse(response runtime.ClientResponse, 
 	o.Payload = new(models.OAuth2TokenIntrospection)
 
 	// response payload
+	o.Logger.Debug(fmt.Println("***************IntrospectOAuth2TokenOK*****************\n", o.Payload))
+	o.Logger.Debug(fmt.Println("***************IntrospectOAuth2TokenOK*****************\n", response.Code(), response.Body()))
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
@@ -80,8 +84,8 @@ func (o *IntrospectOAuth2TokenOK) readResponse(response runtime.ClientResponse, 
 }
 
 // NewIntrospectOAuth2TokenUnauthorized creates a IntrospectOAuth2TokenUnauthorized with default headers values
-func NewIntrospectOAuth2TokenUnauthorized() *IntrospectOAuth2TokenUnauthorized {
-	return &IntrospectOAuth2TokenUnauthorized{}
+func NewIntrospectOAuth2TokenUnauthorized(logger *logrus.Logger) *IntrospectOAuth2TokenUnauthorized {
+	return &IntrospectOAuth2TokenUnauthorized{Logger: logger}
 }
 
 /* IntrospectOAuth2TokenUnauthorized describes a response with status code 401, with default header values.
@@ -90,6 +94,7 @@ jsonError
 */
 type IntrospectOAuth2TokenUnauthorized struct {
 	Payload *models.JSONError
+	Logger  *logrus.Logger
 }
 
 func (o *IntrospectOAuth2TokenUnauthorized) Error() string {
@@ -100,12 +105,12 @@ func (o *IntrospectOAuth2TokenUnauthorized) GetPayload() *models.JSONError {
 }
 
 func (o *IntrospectOAuth2TokenUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-	log := logrus.New()
+
 	o.Payload = new(models.JSONError)
 
 	// response payload
-	log.Debug(fmt.Println("********************************\n", o.Payload))
-	log.Debug(fmt.Println("********************************\n", response.Code(), response.Body()))
+	o.Logger.Debug(fmt.Println("***************IntrospectOAuth2TokenUnauthorized*****************\n", o.Payload))
+	o.Logger.Debug(fmt.Println("***************IntrospectOAuth2TokenUnauthorized*****************\n", response.Code(), response.Body()))
 
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
@@ -125,6 +130,7 @@ jsonError
 */
 type IntrospectOAuth2TokenInternalServerError struct {
 	Payload *models.JSONError
+	Logger  *logrus.Logger
 }
 
 func (o *IntrospectOAuth2TokenInternalServerError) Error() string {
@@ -139,6 +145,8 @@ func (o *IntrospectOAuth2TokenInternalServerError) readResponse(response runtime
 	o.Payload = new(models.JSONError)
 
 	// response payload
+	o.Logger.Debug(fmt.Println("***************IntrospectOAuth2TokenInternalServerError*****************\n", o.Payload))
+	o.Logger.Debug(fmt.Println("***************IntrospectOAuth2TokenInternalServerError*****************\n", response.Code(), response.Body()))
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}

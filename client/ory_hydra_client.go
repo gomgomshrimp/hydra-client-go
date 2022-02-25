@@ -9,6 +9,7 @@ import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/sirupsen/logrus"
 
 	"github.com/ory/hydra-client-go/client/admin"
 	"github.com/ory/hydra-client-go/client/metadata"
@@ -16,7 +17,7 @@ import (
 )
 
 // Default ory hydra HTTP client.
-var Default = NewHTTPClient(nil)
+var Default = NewHTTPClient(nil, logrus.New())
 
 const (
 	// DefaultHost is the default Host
@@ -31,13 +32,13 @@ const (
 var DefaultSchemes = []string{"http", "https"}
 
 // NewHTTPClient creates a new ory hydra HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *OryHydra {
-	return NewHTTPClientWithConfig(formats, nil)
+func NewHTTPClient(formats strfmt.Registry, logger *logrus.Logger) *OryHydra {
+	return NewHTTPClientWithConfig(formats, nil, logger)
 }
 
 // NewHTTPClientWithConfig creates a new ory hydra HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *OryHydra {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig, logger *logrus.Logger) *OryHydra {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -45,11 +46,11 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *Ory
 
 	// create transport and client
 	transport := httptransport.New(cfg.Host, cfg.BasePath, cfg.Schemes)
-	return New(transport, formats)
+	return New(transport, formats, logger)
 }
 
 // New creates a new ory hydra client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *OryHydra {
+func New(transport runtime.ClientTransport, formats strfmt.Registry, logger *logrus.Logger) *OryHydra {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
@@ -57,7 +58,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *OryHydra {
 
 	cli := new(OryHydra)
 	cli.Transport = transport
-	cli.Admin = admin.New(transport, formats)
+	cli.Admin = admin.New(transport, formats, logger)
 	cli.Metadata = metadata.New(transport, formats)
 	cli.Public = public.New(transport, formats)
 	return cli

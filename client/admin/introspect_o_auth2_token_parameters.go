@@ -7,6 +7,7 @@ package admin
 
 import (
 	"context"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 
@@ -78,6 +79,7 @@ type IntrospectOAuth2TokenParams struct {
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+	Logger     *logrus.Logger
 }
 
 // WithDefaults hydrates default values in the introspect o auth2 token params (not the query body).
@@ -140,14 +142,19 @@ func (o *IntrospectOAuth2TokenParams) SetScope(scope *string) {
 }
 
 // WithToken adds the token to the introspect o auth2 token params
-func (o *IntrospectOAuth2TokenParams) WithToken(token string) *IntrospectOAuth2TokenParams {
+func (o *IntrospectOAuth2TokenParams) WithToken(token string, logger *logrus.Logger) *IntrospectOAuth2TokenParams {
 	o.SetToken(token)
+	o.SetLogger(logger)
 	return o
 }
 
 // SetToken adds the token to the introspect o auth2 token params
 func (o *IntrospectOAuth2TokenParams) SetToken(token string) {
 	o.Token = token
+}
+
+func (o *IntrospectOAuth2TokenParams) SetLogger(logger *logrus.Logger) {
+	o.Logger = logger
 }
 
 // WriteToRequest writes these params to a swagger request
