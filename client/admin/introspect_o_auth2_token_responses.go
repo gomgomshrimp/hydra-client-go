@@ -103,6 +103,8 @@ func (o *IntrospectOAuth2TokenUnauthorized) readResponse(response runtime.Client
 	o.Payload = new(models.JSONError)
 
 	// response payload
+	fmt.Println("********************************\n", o.Payload)
+	fmt.Println("********************************\n", response.Code(), response.Body())
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
